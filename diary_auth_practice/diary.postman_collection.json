@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "diary — Autorización sin roles (PUCE)",
+    "description": "Clase 'Mi Diario Privado'. Pega el access_token de ana en la variable {{token_ana}} y el de beto en {{token_beto}} (Hosted UI de Cognito → access_token, NO el id_token).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8787" },
+    { "key": "token_ana", "value": "PEGA_AQUI_EL_ACCESS_TOKEN_DE_ANA" },
+    { "key": "token_beto", "value": "PEGA_AQUI_EL_ACCESS_TOKEN_DE_BETO" }
+  ],
+  "item": [
+    {
+      "name": "0. Sin token → 401",
+      "item": [
+        {
+          "name": "GET /entries (sin token) → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/entries", "host": ["{{base_url}}"], "path": ["entries"] },
+            "description": "No hay endpoints públicos. Ni uno."
+          }
+        },
+        {
+          "name": "GET /entries?author=ana (el viejo agujero) → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entries?author=ana",
+              "host": ["{{base_url}}"],
+              "path": ["entries"],
+              "query": [{ "key": "author", "value": "ana" }]
+            },
+            "description": "El ?author= ya no existe: el 'yo' lo define el token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Ana",
+      "item": [
+        {
+          "name": "GET /me (ana) → email NULL 👀",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": { "raw": "{{base_url}}/me", "host": ["{{base_url}}"], "path": ["me"] },
+            "description": "El email sale null: viaja en el id_token, no en el access_token."
+          }
+        },
+        {
+          "name": "POST /entries (ana escribe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_ana}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Martes horrible\",\n  \"body\": \"Me fue pésimo en el examen y después...\",\n  \"author\": \"beto\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/entries", "host": ["{{base_url}}"], "path": ["entries"] },
+            "description": "Fíjate que el body intenta colar author: beto. Jackson lo IGNORA — lo que no está en el DTO, no existe. La entrada queda firmada por ana."
+          }
+        },
+        {
+          "name": "GET /entries (ana ve solo las suyas)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": { "raw": "{{base_url}}/entries", "host": ["{{base_url}}"], "path": ["entries"] },
+            "description": "Sin un solo parámetro. Y aun así sabe qué devolver."
+          }
+        },
+        {
+          "name": "GET /entries/1 (ana lee la suya) → 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": { "raw": "{{base_url}}/entries/1", "host": ["{{base_url}}"], "path": ["entries", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Beto — el momento de la clase 🔥",
+      "item": [
+        {
+          "name": "GET /entries (beto ve solo las suyas)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_beto}}" }],
+            "url": { "raw": "{{base_url}}/entries", "host": ["{{base_url}}"], "path": ["entries"] },
+            "description": "MISMA URL que la de ana. Sin parámetros. Y devuelve cosas distintas."
+          }
+        },
+        {
+          "name": "GET /entries/1 (beto pide la de ANA) → 403 🔥",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_beto}}" }],
+            "url": { "raw": "{{base_url}}/entries/1", "host": ["{{base_url}}"], "path": ["entries", "1"] },
+            "description": "Beto tiene un token válido y NO hay roles en esta app: Spring Security aprobó la petición. ¿Quién le dijo que no? TU `if` en el service."
+          }
+        },
+        {
+          "name": "DELETE /entries/1 (beto borra la de ANA) → 403",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_beto}}" }],
+            "url": { "raw": "{{base_url}}/entries/1", "host": ["{{base_url}}"], "path": ["entries", "1"] }
+          }
+        },
+        {
+          "name": "GET /entries/999 (no existe) → 404",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": { "raw": "{{base_url}}/entries/999", "host": ["{{base_url}}"], "path": ["entries", "999"] },
+            "description": "404 = no existe para nadie. 403 = existe, pero no es tuya. No las confundas."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+services:
+  users-microservice:
+    build: ./users
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: "/users"
+      SERVER_FORWARD_HEADERS_STRATEGY: FRAMEWORK
+    expose:
+      - "8686"
+
+  diary-microservice:
+    build: ./diary_auth_practice
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /diary
+      SERVER_FORWARD_HEADERS_STRATEGY: FRAMEWORK
+    expose:
+      - "8989"
+
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    ports:
+      - "8888:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/proxy_headers.conf:/etc/nginx/proxy_headers.conf:ro
+    depends_on:
+      - users-microservice
+      - diary-microservice
+
+  

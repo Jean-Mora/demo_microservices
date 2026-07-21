@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: diary
+
+  datasource:
+    url: jdbc:h2:mem:diarydb
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yzwNALI2A # SSO -> Single Sign ON
+
+server:
+  port: 8989

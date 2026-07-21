@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(set -e)",
+      "Bash(git config *)",
+      "Bash(git rm *)",
+      "Bash(rm -rf users/.git diary_auth_practice/.git)",
+      "Bash(git -C /Users/jorgeeduardosaavedra/Documents/js/puce/arquitectura_empresarial/2026-01/1473/demo_microservices status --short)"
+    ]
+  }
+}

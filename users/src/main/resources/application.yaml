@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: users
+
+  datasource:
+    url: jdbc:h2:mem:usersdb
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  # Resource Server: valida el JWT que emite Cognito.
+  # El issuer-uri apunta al User Pool; Spring descarga las llaves publicas (JWKS)
+  # desde ese issuer y verifica la firma de cada token automaticamente.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yzwNALI2A
+
+server:
+  port: 8686
