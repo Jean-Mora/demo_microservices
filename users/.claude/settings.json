@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git init *)",
-      "Bash(git -c user.name=jsaavedra815 -c user.email=jesaavedrav@hotmail.com commit -m 'Initial commit: microservicio users *)"
-    ]
-  }
-}

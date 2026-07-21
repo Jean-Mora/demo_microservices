@@ -14,6 +14,9 @@ detrás de un reverse proxy nginx, autenticados con JWT emitidos por AWS Cognito
 Ambos servicios actúan como *OAuth2 Resource Server*: validan la firma del JWT
 contra el JWKS del User Pool de Cognito (`issuer-uri` en `application.yaml`).
 
+> 📖 **[DOCUMENTACION.md](DOCUMENTACION.md)** — explicación completa: arquitectura, seguridad con
+> Cognito, autorización sin roles (IDOR), el reverse proxy, Docker y cómo quedó armado el repo.
+
 ## Levantar el entorno
 
 ```bash
