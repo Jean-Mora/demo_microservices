@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sandbox de Arquitectura Empresarial — PUCE 1473</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --line: #262b36;
+    --text: #e6e8ee;
+    --muted: #9aa3b2;
+    --accent: #7aa2f7;
+    --accent-2: #9ece6a;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7f9; --card: #ffffff; --line: #e3e6ec;
+      --text: #1b1f27; --muted: #5c6473; --accent: #2f5fd0; --accent-2: #3f8f2f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 3rem 1.25rem;
+    background: var(--bg); color: var(--text);
+    font: 16px/1.65 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; }
+  .tag {
+    display: inline-block; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--line); border-radius: 999px;
+    padding: .25rem .7rem; margin-bottom: 1rem;
+  }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0 0 .6rem; }
+  .lead { color: var(--muted); margin: 0 0 2rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.25rem 1.4rem; margin-bottom: 1rem;
+  }
+  h2 { font-size: 1rem; margin: 0 0 .6rem; }
+  ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+  li { margin-bottom: .35rem; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .875em;
+    background: rgba(127,127,127,.14); padding: .12em .4em; border-radius: 5px;
+  }
+  a { color: var(--accent); }
+  .quote {
+    border-left: 3px solid var(--accent-2); padding-left: 1rem;
+    color: var(--muted); font-style: italic; margin: 0;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: 0; }
+  footer { color: var(--muted); font-size: .85rem; margin-top: 2rem; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">PUCE · Arquitectura Empresarial · 1473</span>
+  <h1>Este es el sandbox de la clase 👋</h1>
+  <p class="lead">
+    Dos microservicios en Kotlin + Spring Boot, detrás de un reverse proxy nginx, autenticados con
+    JWT de AWS Cognito. <strong>Estudien este repo:</strong> aquí está, en pequeño, casi todo lo que
+    vamos a discutir en el curso.
+  </p>
+
+  <div class="card">
+    <h2>Qué hay corriendo ahora mismo</h2>
+    <table>
+      <tr><th>Ruta</th><th>Servicio</th><th>Qué hace</th></tr>
+      <tr><td><code>/users</code></td><td>users :8686</td><td>Asocia el <code>sub</code> de Cognito con el perfil en nuestra BD</td></tr>
+      <tr><td><code>/diary</code></td><td>diary :8989</td><td>Entradas de diario privadas por usuario</td></tr>
+      <tr><td><code>/</code></td><td>nginx :8888</td><td>Punto único de entrada (esta página)</td></tr>
+    </table>
+    <p style="color:var(--muted);margin:.9rem 0 0;font-size:.9rem">
+      Ojo: sin <code>Authorization: Bearer &lt;access_token&gt;</code> todo responde <code>401</code>. Eso es a propósito.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Lo que quiero que se lleven</h2>
+    <ul>
+      <li><strong>Quién eres lo dice el token, no el cliente.</strong> Ningún endpoint recibe tu id como parámetro.</li>
+      <li><strong>Autenticar ≠ autorizar.</strong> Spring Security valida la firma del JWT y dice "adelante"; saber de quién es la fila 1 <em>es tu trabajo</em>.</li>
+      <li><strong>El <code>access_token</code> es una llave; el <code>id_token</code> es una cédula.</strong> Por eso <code>/diary/me</code> devuelve <code>email: null</code>.</li>
+      <li><strong>Sin roles también hay autorización.</strong> Todos los usuarios tienen los mismos permisos y aun así nadie lee el diario de otro.</li>
+      <li><strong>Un <code>if</code> borrado = un IDOR</strong> (OWASP #1, Broken Access Control). Los tests existen para que ese bug no vuelva.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <p class="quote">
+      "Todos los usuarios de este sistema tienen exactamente los mismos permisos. Y aun así, ninguno
+      puede leer el diario de otro. Spring Security no tiene absolutamente nada que ver con eso."
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Por dónde empezar a leer</h2>
+    <ul>
+      <li><code>DOCUMENTACION.md</code> — la explicación completa, de punta a punta.</li>
+      <li><code>diary_auth_practice/README.md</code> — la clase de autorización sin roles.</li>
+      <li><code>.../diary/services/EntryService.kt</code> — las 3 líneas donde vive toda la seguridad.</li>
+      <li><code>.../config/SecurityConfig.kt</code> (en ambos) — comparen qué tienen y qué <em>no</em> tienen.</li>
+      <li><code>nginx/nginx.conf</code> y <code>docker-compose.yml</code> — cómo se arma el sistema.</li>
+    </ul>
+    <p style="color:var(--muted);margin:.9rem 0 0;font-size:.9rem">
+      Levántenlo con <code>docker compose up --build</code> y rómpanlo. Se aprende más rompiéndolo.
+    </p>
+  </div>
+
+  <footer>
+    <a href="https://github.com/jsaavedra815/demo_microservices">github.com/jsaavedra815/demo_microservices</a>
+  </footer>
+</main>
+</body>
+</html>
